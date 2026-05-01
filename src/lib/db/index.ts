@@ -1,13 +1,14 @@
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schema";
-import path from "path";
-import fs from "fs";
 
-const DB_PATH = path.join(process.cwd(), "data", "hr-readiness.db");
-const dataDir = path.dirname(DB_PATH);
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+const url = process.env.TURSO_DATABASE_URL;
+const authToken = process.env.TURSO_AUTH_TOKEN;
 
-const client = createClient({ url: `file:${DB_PATH}` });
+if (!url) {
+  throw new Error("TURSO_DATABASE_URL is not set");
+}
+
+const client = createClient({ url, authToken });
 export const db = drizzle(client, { schema });
 export type DB = typeof db;
